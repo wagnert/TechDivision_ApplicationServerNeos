@@ -1,11 +1,15 @@
 {
     "name": "techdivision/techdivision_applicationserverneos",
-    "type": "project",
     "description": "A Neos Project-Stub for the ApplicationServer",
     "version": "0.1.0",
+    "config": {
+        "vendor-dir": "WEB-INF/lib",
+        "bin-dir": "bin"
+    },
     "require": {
         "typo3/neos-base-distribution": "1.0.*"
     },
+    "minimum-stability": "dev",
     "authors": [
         {
             "name": "Johann Zelger",
