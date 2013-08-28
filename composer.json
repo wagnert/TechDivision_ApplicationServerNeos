@@ -1,0 +1,19 @@
+{
+    "name": "techdivision/techdivision_applicationserverneos",
+    "type": "project",
+    "description": "A Neos Project-Stub for the ApplicationServer",
+    "version": "0.1.0",
+    "require": {
+        "typo3/neos-base-distribution": "1.0.0*"
+    },
+    "authors": [
+        {
+            "name": "Johann Zelger",
+            "email": "jz@techdivision.com"
+        },
+        {
+            "name": "Tim Wagner",
+            "email": "tw@techdivision.com"
+        }
+    ]
+}
