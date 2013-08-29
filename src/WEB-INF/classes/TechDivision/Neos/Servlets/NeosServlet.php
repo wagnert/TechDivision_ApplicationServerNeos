@@ -116,8 +116,6 @@ class NeosServlet extends PhpServlet
         $_SERVER['REDIRECT_STATUS'] = '200';
 
         require($this->getWebappPath() . '/Packages/Framework/TYPO3.Flow/Classes/TYPO3/Flow/Core/Bootstrap.php');
-        
-        error_log(var_export($_SERVER, true));
 
         $context = getenv('FLOW_CONTEXT') ?: (getenv('REDIRECT_FLOW_CONTEXT') ?: 'Development');
         $bootstrap = new \TYPO3\Flow\Core\Bootstrap($context);
