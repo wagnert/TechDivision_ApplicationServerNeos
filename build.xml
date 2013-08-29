@@ -57,11 +57,6 @@
                 <include name="**/*"/>
             </fileset>
         </copy>
-        <!--
-        <exec executable="composer.phar" dir="${instance.dir}">
-            <arg line="update"/>
-        </exec>
-        -->
     </target>
 
     <!-- ==================================================================== -->
@@ -69,7 +64,7 @@
     <!-- ==================================================================== -->
     <target name="delete-instance" description="Deletes the magento instance for testing purpose.">
         <echo message="Delete existing sources in ${instance.dir}..."/>
-        <delete dir="${instance.dir}" includeemptydirs="true" quiet="false" verbose="false" failonerror="true"/>
+        <delete dir="${instance.dir}" includeemptydirs="true" quiet="false" verbose="false" failonerror="true" followsymlinks="false"/>
         <delete dir="${basedir}/instance-src" includeemptydirs="true" quiet="false" verbose="false" failonerror="true"/>
     </target>
         	
@@ -77,6 +72,7 @@
 	<!-- Initializing a magento instance for testing purpose   			 	  -->
 	<!-- ==================================================================== -->
 	<target name="init-instance" description="Creats a magento instance for testing purpose">
+		<antcall target="delete-instance"/>
         <exec executable="composer.phar" dir="${deploy.dir}">
             <arg line="create-project --dev --stability alpha typo3/neos-base-distribution ${webapp.name}"/>
         </exec>
