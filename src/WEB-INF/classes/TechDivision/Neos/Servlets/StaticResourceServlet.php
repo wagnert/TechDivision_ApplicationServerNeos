@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TechDivision\Neos\Servlets\NeosServlet
+ * TechDivision\Neos\Servlets\StaticResourceServlet
  *
  * NOTICE OF LICENSE
  *
@@ -14,7 +14,6 @@ namespace TechDivision\Neos\Servlets;
 
 use TechDivision\ServletContainer\Interfaces\Request;
 use TechDivision\ServletContainer\Interfaces\Response;
-use TechDivision\ServletContainer\Servlets\PhpServlet;
 use TechDivision\ServletContainer\Http\PostRequest;
 
 /**
@@ -24,11 +23,72 @@ use TechDivision\ServletContainer\Http\PostRequest;
  *              Open Software License (OSL 3.0)
  * @author      Johann Zelger <jz@techdivision.com>
  */
-class NeosServlet extends PhpServlet
+class StaticResourceServlet extends \TechDivision\ServletContainer\Servlets\StaticResourceServlet
 {
+
+    /**
+     * Holds the request object
+     *
+     * @var Request
+     */
+    protected $request;
+
+    /**
+     * Holds the response object
+     *
+     * @var Response
+     */
+    protected $response;
 
     public function getWebappPath() {
         return $this->getServletConfig()->getApplication()->getWebappPath();
+    }
+
+    /**
+     * @see \TechDivision\ServletContainer\Servlets\PhpServlet::doGet()
+     */
+    public function doPost(Request $req, Response $res) {
+        $this->doGet($req, $res);
+    }
+
+    /**
+     * Sets request object
+     *
+     * @param mixed $request
+     */
+    public function setRequest($request)
+    {
+        $this->request = $request;
+    }
+
+    /**
+     * Returns request object
+     *
+     * @return mixed
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * Sets response object
+     *
+     * @param mixed $response
+     */
+    public function setResponse($response)
+    {
+        $this->response = $response;
+    }
+
+    /**
+     * Returns response object
+     *
+     * @return mixed
+     */
+    public function getResponse()
+    {
+        return $this->response;
     }
 
     /**
@@ -42,7 +102,7 @@ class NeosServlet extends PhpServlet
         if (($xRequestedWith = $this->getRequest()->getHeader('X-Requested-With')) != null) {
             $this->getRequest()->setServerVar('HTTP_X_REQUESTED_WITH', $xRequestedWith);
         }
-
+        
         $this->getRequest()->setServerVar(
             'DOCUMENT_ROOT', $this->getRequest()->getServerVar('DOCUMENT_ROOT') . DIRECTORY_SEPARATOR . 'Web'
         );
@@ -57,7 +117,7 @@ class NeosServlet extends PhpServlet
         
         $this->getRequest()->setServerVar('SCRIPT_NAME', DIRECTORY_SEPARATOR . 'index.php');
         $this->getRequest()->setServerVar('PHP_SELF', DIRECTORY_SEPARATOR . 'index.php');
-
+        
         $_SERVER = $this->getRequest()->getServerVars();
         $_SERVER['SERVER_PORT'] = NULL;
 
@@ -71,10 +131,10 @@ class NeosServlet extends PhpServlet
         }
 
         $_REQUEST = $this->getRequest()->getParameterMap();
-        
+
         foreach (explode('; ', $this->getRequest()->getHeader('Cookie')) as $cookieLine) {
 
-            list ($key, $value) = explode('=', $cookieLine);
+            list($key, $value) = explode('=', $cookieLine);
 
             if (empty($key) === false) {
                 $_COOKIE[$key] = $value;
@@ -93,37 +153,8 @@ class NeosServlet extends PhpServlet
         $this->setRequest($req);
         $this->setResponse($res);
 
-        // start session
-        $this->getRequest()->getSession()->start();
-
-        // initialize the global variables
         $this->initGlobals();
-
-        // this is a bad HACK because it's NOT possible to write to php://stdin
-        if ($this->getRequest() instanceof PostRequest) {
-            define('HTTP_RAW_POST_DATA', $this->getRequest()->getContent());
-        }
         
-        $_SERVER['DOCUMENT_ROOT'] = $this->getWebappPath() . DIRECTORY_SEPARATOR . 'Web' . DIRECTORY_SEPARATOR;
-        $_SERVER['FLOW_REWRITEURLS'] = 1;
-        $_SERVER['FLOW_ROOTPATH'] = $this->getWebappPath();
-        $_SERVER['FLOW_SAPITYPE'] = 'Web';
-
-        $_SERVER['REDIRECT_FLOW_CONTEXT'] = 'Development';
-        $_SERVER['REDIRECT_FLOW_SAPITYPE'] = 'Web';
-        $_SERVER['REDIRECT_FLOW_ROOTPATH'] = '/opt/appserver/webapps/neos/';
-        $_SERVER['REDIRECT_FLOW_REWRITEURLS'] = '1';
-        $_SERVER['REDIRECT_STATUS'] = '200';
-
-        require($this->getWebappPath() . '/Packages/Framework/TYPO3.Flow/Classes/TYPO3/Flow/Core/Bootstrap.php');
-        
-        error_log(var_export($_SERVER, true));
-
-        $context = getenv('FLOW_CONTEXT') ?: (getenv('REDIRECT_FLOW_CONTEXT') ?: 'Development');
-        $bootstrap = new \TYPO3\Flow\Core\Bootstrap($context);
-
-        ob_start();
-        $bootstrap->run();
-        $res->setContent(ob_get_clean());
+        parent::doGet($req, $res);
     }
 }

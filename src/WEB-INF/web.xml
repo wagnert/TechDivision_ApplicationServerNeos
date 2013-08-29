@@ -15,7 +15,7 @@
         <description><![CDATA[A generic servlet that executes usual static content.]]></description>
         <display-name>StaticResourceServlet</display-name>
         <servlet-name>StaticResourceServlet</servlet-name>
-        <servlet-class>\TechDivision\ServletContainer\Servlets\StaticResourceServlet</servlet-class>
+        <servlet-class>\TechDivision\Neos\Servlets\StaticResourceServlet</servlet-class>
     </servlet>
 
     <servlet>
@@ -24,6 +24,11 @@
         <servlet-name>NeosServlet</servlet-name>
         <servlet-class>\TechDivision\Neos\Servlets\NeosServlet</servlet-class>
     </servlet>
+
+    <servlet-mapping>
+        <servlet-name>StaticResourceServlet</servlet-name>
+        <url-pattern>/favicon.ico</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>NeosServlet</servlet-name>
