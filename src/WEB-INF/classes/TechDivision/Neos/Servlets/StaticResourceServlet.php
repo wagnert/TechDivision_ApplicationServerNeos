@@ -148,13 +148,30 @@ class StaticResourceServlet extends \TechDivision\ServletContainer\Servlets\Stat
      * @throws \Exception
      */
     public function doGet(Request $req, Response $res) {
-
+        
+        // get request uri for further rewrite processing
+        $uri = $req->getUri();
+        
+        // Perform rewriting of persistent private resources
+        // .htaccess RewriteRule ^(_Resources/Persistent/[a-z0-9]+/(.+/)?[a-f0-9]{40})/.+(\..+) $1$3 [L]
+        if (preg_match('/^(\/_Resources\/Persistent\/[a-z0-9]+\/(.+\/)?[a-f0-9]{40})\/.+(\..+)/', $uri, $matches)) {
+            $req->setUri($matches[1].$matches[3]);
+            $req->initServerVars();
+        }
+        
+        // Perform rewriting of persistent resource files
+        // .htaccess RewriteRule ^(_Resources/Persistent/.{40})/.+(\..+) $1$2 [L]
+        if (preg_match('/^(\/_Resources\/Persistent\/.{40})\/.+(\..+)/', $uri, $matches)) {
+            $req->setUri($matches[1].$matches[2]);
+            $req->initServerVars();
+        }
+        
         // register request and response objects
         $this->setRequest($req);
         $this->setResponse($res);
-
-        $this->initGlobals();
         
+        $this->initGlobals();
+
         parent::doGet($req, $res);
     }
 }
