@@ -30,6 +30,65 @@ class NeosServlet extends PhpServlet
     public function getWebappPath() {
         return $this->getServletConfig()->getApplication()->getWebappPath();
     }
+    
+    /**
+     * Initialize global files
+     *
+     * @return void
+     */
+    public function initFiles()
+    {
+        // init query parser
+        $this->getQueryParser()->clear();
+        // iterate all files
+    
+        foreach ($this->getRequest()->getParts() as $part) {
+            // check if filename is given, write and register it
+            if ($part->getFilename()) {
+                // generate temp filename
+                $tempName = tempnam(ini_get('upload_tmp_dir'), 'neos_upload_');
+                // write part
+                $part->write($tempName);
+                // register uploaded file
+                appserver_register_file_upload($tempName);
+                // init error state
+                $errorState = UPLOAD_ERR_OK;
+            } else {
+                // set error state
+                $errorState = UPLOAD_ERR_NO_FILE;
+                // clear tmp file
+                $tempName = '';
+            }
+            // check if file has array info
+            if (preg_match('/^([^\[]+)(\[.+)?/', $part->getName(), $matches)) {
+    
+                // get first part group name and array definition if exists
+                $partGroup = $matches[1];
+                $partArrayDefinition = '';
+                if (isset($matches[2])) {
+                    $partArrayDefinition = $matches[2];
+                }
+    
+                $this->getQueryParser()->parseKeyValue(
+                    $partGroup.'[name]'.$partArrayDefinition, $part->getFilename()
+                );
+                $this->getQueryParser()->parseKeyValue(
+                    $partGroup.'[type]'.$partArrayDefinition, $part->getContentType()
+                );
+                $this->getQueryParser()->parseKeyValue(
+                    $partGroup.'[tmp_name]'.$partArrayDefinition, $tempName
+                );
+                $this->getQueryParser()->parseKeyValue(
+                    $partGroup.'[error]'.$partArrayDefinition, $errorState
+                );
+                $this->getQueryParser()->parseKeyValue(
+                    $partGroup.'[size]'.$partArrayDefinition, $part->getSize()
+                );
+            }
+        }
+        // set files globals finally.
+        $_FILES = $this->getQueryParser()->getResult();
+    }
 
     /**
      * Initialize globals
@@ -99,6 +158,9 @@ class NeosServlet extends PhpServlet
 
         // initialize the global variables
         $this->initGlobals();
+        
+        // initialize the global files var
+        $this->initFiles();
 
         // this is a bad HACK because it's NOT possible to write to php://stdin
         if ($this->getRequest() instanceof PostRequest) {
