@@ -88,9 +88,6 @@ class NeosServlet extends PhpServlet
      * @throws \Exception
      */
     public function doGet(Request $req, Response $res) {
-
-        require($this->getWebappPath() . '/Packages/Framework/TYPO3.Flow/Classes/TYPO3/Flow/Core/Bootstrap.php');
-
         // register request and response objects
         $this->setRequest($req);
         $this->setResponse($res);
@@ -117,11 +114,9 @@ class NeosServlet extends PhpServlet
         $_SERVER['REDIRECT_FLOW_REWRITEURLS'] = '1';
         $_SERVER['REDIRECT_STATUS'] = '200';
 
+        require($this->getWebappPath() . '/Packages/Framework/TYPO3.Flow/Classes/TYPO3/Flow/Core/Bootstrap.php');
+        
         $context = getenv('FLOW_CONTEXT') ?: (getenv('REDIRECT_FLOW_CONTEXT') ?: 'Development');
-
-        error_log(__METHOD__ . ':' . __LINE__);
-
-        error_log(var_export($_SERVER, true));
 
         $bootstrap = new \TYPO3\Flow\Core\Bootstrap($context);
 
