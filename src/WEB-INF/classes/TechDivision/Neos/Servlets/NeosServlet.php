@@ -95,6 +95,8 @@ class NeosServlet extends PhpServlet
         // start session
         $this->getRequest()->getSession()->start();
 
+        require($this->getWebappPath() . '/Packages/Framework/TYPO3.Flow/Classes/TYPO3/Flow/Core/Bootstrap.php');
+
         // initialize the global variables
         $this->initGlobals();
 
@@ -113,8 +115,6 @@ class NeosServlet extends PhpServlet
         $_SERVER['REDIRECT_FLOW_ROOTPATH'] = '/opt/appserver/webapps/neos/';
         $_SERVER['REDIRECT_FLOW_REWRITEURLS'] = '1';
         $_SERVER['REDIRECT_STATUS'] = '200';
-
-        require($this->getWebappPath() . '/Packages/Framework/TYPO3.Flow/Classes/TYPO3/Flow/Core/Bootstrap.php');
         
         $context = getenv('FLOW_CONTEXT') ?: (getenv('REDIRECT_FLOW_CONTEXT') ?: 'Development');
 
