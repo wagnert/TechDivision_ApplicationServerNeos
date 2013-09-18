@@ -72,7 +72,7 @@
     <!-- Creates a PHAR file with the TYPO3.Neos sources                      -->
     <!-- ==================================================================== -->
 	<target name="phar-create" depends="phar-prepare" description="Creates a PHAR file with the TYPO3.Neos sources.">
-        <copy todir="${php-target.dir}/${webapp.name}-build" >
+        <copy todir="${php-target.dir}/${webapp.name}-build" overwrite="true">
             <fileset dir="${php-target.dir}/${webapp.name}">
                 <include name="**/**" />
             </fileset>
