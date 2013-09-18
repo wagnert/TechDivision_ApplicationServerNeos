@@ -72,7 +72,11 @@
     <!-- Creates a PHAR file with the TYPO3.Neos sources                      -->
     <!-- ==================================================================== -->
 	<target name="phar-create" depends="phar-prepare" description="Creates a PHAR file with the TYPO3.Neos sources.">
-        <move file="${php-target.dir}/${webapp.name}" todir="${php-target.dir}/${webapp.name}-build" includeemptydirs="true" />
+        <copy todir="${php-target.dir}/${webapp.name}-build" >
+            <fileset dir="${php-target.dir}/${webapp.name}">
+                <include name="**/**" />
+            </fileset>
+        </copy>
         <pharpackage destfile="${php-target.dir}/${neos.version}.phar" basedir="${php-target.dir}/${webapp.name}-build">
             <fileset dir="${php-target.dir}/${webapp.name}-build">
                 <include name="**/**" />
