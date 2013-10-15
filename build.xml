@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <project name="TechDivision_ApplicationServerExample" default="deploy" basedir=".">
-	<property file="${project.basedir}/build.properties" />
-	<property file="${project.basedir}/build.default.properties" />
+	<property file="${basedir}/build.properties" />
+	<property file="${basedir}/build.default.properties" />
 	<property environment="env" />
-	<property name="php-src.dir" value="${project.basedir}/src" />
-	<property name="php-test.dir" value="${project.basedir}/tests" />
-	<property name="php-target.dir" value="${project.basedir}/target" />
+	<property name="php-src.dir" value="${basedir}/src" />
+	<property name="php-test.dir" value="${basedir}/tests" />
+	<property name="php-target.dir" value="${basedir}/target" />
 
 	<!-- ==================================================================== -->
 	<!-- Cleans the directories with the generated source files				  -->
@@ -97,7 +97,7 @@
 	<target name="delete-instance" description="Deletes the magento instance for testing purpose.">
 		<echo message="Delete existing sources in ${instance.dir}..." />
 		<delete dir="${instance.dir}" includeemptydirs="true" quiet="false" verbose="false" failonerror="true" followsymlinks="false" />
-		<delete dir="${project.basedir}/instance-src" includeemptydirs="true" quiet="false" verbose="false" failonerror="true" />
+		<delete dir="${basedir}/instance-src" includeemptydirs="true" quiet="false" verbose="false" failonerror="true" />
 	</target>
 
 	<!-- ==================================================================== -->
@@ -108,7 +108,7 @@
 		<exec executable="composer.phar" dir="${deploy.dir}">
 			<arg line="create-project --dev --stability alpha typo3/neos-base-distribution ${webapp.name}" />
 		</exec>
-		<exec dir="${project.basedir}" executable="/bin/ln">
+		<exec dir="${basedir}" executable="/bin/ln">
 			<arg line="-s ${instance.dir} instance-src" />
 		</exec>
 	</target>
