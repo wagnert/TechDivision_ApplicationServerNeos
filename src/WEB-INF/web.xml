@@ -1,28 +1,48 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<web-app version="2.4">
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="1.0">
 
-    <display-name>Your Webapp</display-name>
-    <description>Webapp created with ApplicationServerProject Stub</description>
-
-    <servlet>
-        <description><![CDATA[A generic servlet that executes usual php scripts.]]></description>
-        <display-name>PhpServlet</display-name>
-        <servlet-name>PhpServlet</servlet-name>
-        <servlet-class>\TechDivision\ServletContainer\Servlets\PhpServlet</servlet-class>
-    </servlet>
+    <display-name>TYPO3.Neos app</display-name>
+    <description>TYPO3.Neos demo app</description>
 
     <servlet>
-        <description><![CDATA[A generic servlet that executes usual static content.]]></description>
+        <description><![CDATA[A generic servlet that that handles static content.]]></description>
         <display-name>StaticResourceServlet</display-name>
         <servlet-name>StaticResourceServlet</servlet-name>
-        <servlet-class>\TechDivision\Neos\Servlets\StaticResourceServlet</servlet-class>
+        <servlet-class>\TechDivision\ServletContainer\Servlets\StaticResourceServlet</servlet-class>
+		
     </servlet>
 
     <servlet>
-        <description><![CDATA[A demo servlet that renders a template showing the current uri requested]]></description>
+        <description><![CDATA[A generic servlet, customized for TYPO3.Neos, that handles static content.]]></description>
+        <display-name>NeosStaticResourceServlet</display-name>
+        <servlet-name>NeosStaticResourceServlet</servlet-name>
+        <servlet-class>\TechDivision\ServletContainer\Servlets\Legacy\NeosStaticResourceServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+    
+        <description><![CDATA[A TYPO3.Neos servlet that renders a template showing the current uri requested]]></description>
         <display-name>NeosServlet</display-name>
         <servlet-name>NeosServlet</servlet-name>
-        <servlet-class>\TechDivision\Neos\Servlets\NeosServlet</servlet-class>
+        <servlet-class>\TechDivision\ServletContainer\Servlets\Legacy\NeosServlet</servlet-class>
+ 
+		<init-param>
+			<param-name>flowContext</param-name>
+			<param-value>Development</param-value>
+		</init-param>
+		<init-param>
+			<param-name>flowSapiType</param-name>
+			<param-value>Web</param-value>
+		</init-param>
+		<init-param>
+			<param-name>flowRewriteUrls</param-name>
+			<param-value>1</param-value>
+		</init-param>
+		<init-param>
+			<param-name>redirectStatus</param-name>
+			<param-value>200</param-value>
+		</init-param>
+		
     </servlet>
 
     <servlet-mapping>
@@ -41,13 +61,8 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>StaticResourceServlet</servlet-name>
+        <servlet-name>NeosStaticResourceServlet</servlet-name>
         <url-pattern>/_Resources/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>PhpServlet</servlet-name>
-        <url-pattern>/*.php</url-pattern>
     </servlet-mapping>
 
 </web-app>
