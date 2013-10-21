@@ -28,7 +28,7 @@
  
 		<init-param>
 			<param-name>flowContext</param-name>
-			<param-value>Development</param-value>
+			<param-value>Production</param-value>
 		</init-param>
 		<init-param>
 			<param-name>flowSapiType</param-name>

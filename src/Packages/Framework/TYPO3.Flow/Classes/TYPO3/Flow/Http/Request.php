@@ -327,8 +327,8 @@ class Request extends Message {
 			$this->content = '';
 			return fopen($this->inputStreamUri, 'rb');
 		}
-		if ($this->content === NULL) {
-		    $this->content = HTTP_RAW_POST_DATA;
+		if ($this->content === NULL && array_key_exists('HTTP_RAW_POST_DATA', $GLOBALS)) {
+		    $this->content = $GLOBALS['HTTP_RAW_POST_DATA'];
 		}
 		if ($this->content === NULL) {
 			$this->content = file_get_contents($this->inputStreamUri);
