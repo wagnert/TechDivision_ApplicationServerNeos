@@ -1,103 +1,62 @@
-/appserver/TechDivision_ApplicationServerNeos/instance-src/Packages/Framework/TYPO3.Flow/Classes/TYPO3/Flow/Http/RequestHandler.php:92
+# Running TYPO3.Neos on appserver.io
 
-    /**
-     * This request handler can handle any web request.
-     *
-     * @return boolean If the request is a web request, TRUE otherwise FALSE
-     * @api
-     */
-    public function canHandleRequest() {
-        return (FLOW_SAPITYPE !== 'CLI');
-    }
+TYPO3.Neos is ready to run on the appserver.io infrastructure right now. To run TYPO3.Neos you actually 
+has two installation possiblities.
 
-/appserver/TechDivision_ApplicationServerNeos/instance-src/Packages/Framework/TYPO3.Flow/Classes/TYPO3/Flow/Cli/CommandRequestHandler.php:66
+This descriptions assume variable $AS points to the root of the appserver.io AS distribution. By default
+this is ```/opt/appserver``` on any Linux or Mac OS X system. 
 
-	/**
-	 * This request handler can handle CLI requests.
-	 *
-	 * @return boolean If the request is a CLI request, TRUE otherwise FALSE
-	 */
-	public function canHandleRequest() {
-		return (FLOW_SAPITYPE === 'CLI');
-	}
+## Installation
 
-/appserver/TechDivision_ApplicationServerNeos/instance-src/Packages/Framework/TYPO3.Flow/Classes/TYPO3/Flow/Core/Bootstrap.php:461
+### Possibility 1: Deploy the PHAR archive
 
-    if (array_key_exists('FLOW_SAPITYPE', $_SERVER) === false) {
-        define('FLOW_SAPITYPE', (PHP_SAPI === 'cli' ? 'CLI' : 'Web'));
-    } else {
-        define('FLOW_SAPITYPE', $_SERVER['FLOW_SAPITYPE']);
-    }
+The first, and probably easiest way, is to deploy the latest PHAR archive you can download from the
+[Releases](https://github.com/techdivision/TechDivision_ApplicationServerNeos/releases) page by copy
+it to the ```$AS/deploy``` directory and create the necessary marker file with:
 
-/appserver/TechDivision_ApplicationServerNeos/instance-src/Packages/Application/TYPO3.Setup/Classes/TYPO3/Setup/Core/RequestHandler.php:37
+```
+$ cd $AS/deploy
+$ touch neos-1.0.2.phar.dodeploy
+```
 
-	/**
-	 * This request handler can handle any web request.
-	 *
-	 * @return boolean If the request is a web request, TRUE otherwise FALSE
-	 */
-	public function canHandleRequest() {
-		return (FLOW_SAPITYPE !== 'CLI' && ((strlen($_SERVER['REQUEST_URI']) === 6 && $_SERVER['REQUEST_URI'] === '/setup') || in_array(substr($_SERVER['REQUEST_URI'], 0, 7), array('/setup/', '/setup?'))));
-	}
+Optionally you can install the PHAR archive by using the admin panel for your appserver.io installation.
 
-/appserver/TechDivision_ApplicationServerNeos/instance-src/Packages/Application/TYPO3.Setup/Classes/TYPO3/Setup/Core/BasicRequirements.php:116
+Wait until the application server has been restarted, open a browser and start the setup process by
+opening the URL ```http://127.0.0.1:9080/neos-1.0.2/setup```.
 
-    /*
-    if (version_compare(PHP_VERSION, '6.0.0', '<') && !extension_loaded('mbstring')) {
-        return new Error('Flow requires the PHP extension "mbstring" to be available for PHP versions below 6.0.0', 1207148809);
-    }
-    */
+### Possiblity 2: Init instance by using the apropriate ANT target
 
-/appserver/TechDivision_ApplicationServerNeos/instance-src/Packages/Framework/TYPO3.Flow/Classes/TYPO3/Flow/Core/Bootstrap.php:539
+This possibility assume that you have a working ANT and a global composer installation running on your 
+local machine.
 
-    /*
-    if (version_compare(PHP_VERSION, '6.0.0', '<') && !extension_loaded('mbstring')) {
-        echo('Flow requires the PHP extension "mbstring" for PHP versions below 6.0.0 (Error #1207148809)' . PHP_EOL);
-        exit(1);
-    }
-    */
+ATTENTION: By calling the ANT target, you'll silently delete a installation that will be found under
+```$AS/webapps/neos-1.0.2```. So use this solution only, if you've a backup or can be sure that you
+don't need any files from this directory.
 
-/appserver/TechDivision_ApplicationServerNeos/instance-src/Packages/Framework/TYPO3.Flow/Classes/TYPO3/Flow/Error/AbstractExceptionHandler.php:76
+To run the ANT target, do the following:
 
-    switch (FLOW_SAPITYPE) {
-        case 'CLI' :
-            $this->echoExceptionCli($exception);
-            break;
-        default :
-            $this->echoExceptionWeb($exception);
-    }
+```
+$ cd ~
+$ git clone https://github.com/techdivision/TechDivision_ApplicationServerNeos.git
+$ cd TechDivision_ApplicationServerNeos
+$ sudo ANT init-instance
+```
 
-/appserver/TechDivision_ApplicationServerNeos/instance-src/Packages/Framework/TYPO3.Flow/Classes/TYPO3/Flow/Cli/SlaveRequestHandler.php:46
+After that, restart the application server and enjoy!
 
-	/**
-	 * This request handler can handle CLI requests.
-	 *
-	 * @return boolean If the request is a CLI request, TRUE otherwise FALSE
-	 */
-	public function canHandleRequest() {
-		return (FLOW_SAPITYPE === 'CLI' && isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] === '--start-slave');
-	}
+## Create the PHAR archive by yourself
 
-/appserver/TechDivision_ApplicationServerNeos/instance-src/Packages/Framework/TYPO3.Flow/Classes/TYPO3/Flow/Http/Response.php:558
+Addionally you can create the PHAR archive with the TYPO3.Neos version (you have to specify in the
+build.default.properties) by yourself. You will also need a working ANT and a global composer installation
+on your local machine.
 
-    /*
-    if (headers_sent() === TRUE) {
-        return;
-    }
+There you have to do the following steps:
 
-    foreach ($this->renderHeaders() as $header) {
-        header($header);
-    }
-    */
+```
+$ cd ~
+$ git clone https://github.com/techdivision/TechDivision_ApplicationServerNeos.git
+$ cd TechDivision_ApplicationServerNeos
+$ sudo ANT create-phar
+```
 
-/appserver/TechDivision_ApplicationServerNeos/instance-src/Packages/Framework/TYPO3.Flow/Classes/TYPO3/Flow/Error/ProductionExceptionHandler.php:38
-
-    // if (!headers_sent()) {
-        header(sprintf('HTTP/1.1 %s %s', $statusCode, $statusMessage));
-    // }
-
-/appserver/TechDivision_ApplicationServerNeos/instance-src/Packages/Framework/TYPO3.Flow/Classes/TYPO3/Flow/Error/DebugExceptionHandler.php:39
-
-    // if (!headers_sent()) {
-        header(sprintf('HTTP/1.1 %s %s', $statusCode, $statusMessage));
-    // }
+You'll find the resulting PHAR archive in the ```target``` folder.
