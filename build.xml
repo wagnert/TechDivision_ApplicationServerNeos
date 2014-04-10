@@ -1,8 +1,12 @@
 <?xml version="1.0"?>
-<project name="TechDivision_ApplicationServerExample" default="deploy" basedir=".">
+<project name="TechDivision_ApplicationServerNeos" default="deploy" basedir=".">
+	
+	<property environment="env" />
+	
 	<property file="${basedir}/build.properties" />
 	<property file="${basedir}/build.default.properties" />
-	<property environment="env" />
+	
+    <property name="lib.dir" value="${basedir}/lib" />
 	<property name="php-src.dir" value="${basedir}/src" />
 	<property name="php-test.dir" value="${basedir}/tests" />
 	<property name="php-target.dir" value="${basedir}/target" />
@@ -18,6 +22,7 @@
 	<!-- Prepares all the required directories								  -->
 	<!-- ==================================================================== -->
 	<target name="prepare" depends="clean" description="Prepares all the required directories.">
+		<mkdir dir="${lib.dir}" />
 		<mkdir dir="${php-target.dir}" />
 	</target>
 
@@ -25,24 +30,9 @@
 	<!-- Copies the sources to the target directory							  -->
 	<!-- ==================================================================== -->
 	<target name="copy" depends="prepare" description="Copies the sources to the target directory.">
-		<copy todir="${php-target.dir}/${webapp.name}" preservelastmodified="true" overwrite="true">
-			<fileset dir="${php-src.dir}">
-				<include name="**/*.php" />
-				<include name="**/*.yml" />
-				<include name="**/*.xml" />
-				<include name="**/*.xml.*" />
-			</fileset>
-			<filterchain>
-				<expandproperties />
-			</filterchain>
-		</copy>
-		<copy todir="${php-target.dir}/${webapp.name}" preservelastmodified="true" overwrite="true">
+		<copy todir="${php-target.dir}/${webapp.name}-${neos.version}" preservelastmodified="true" overwrite="true">
 			<fileset dir="${php-src.dir}">
 				<include name="**/*" />
-				<exclude name="**/*.php" />
-				<exclude name="**/*.yml" />
-				<exclude name="**/*.xml" />
-				<exclude name="**/*.xml.*" />
 			</fileset>
 		</copy>
 	</target>
@@ -51,7 +41,7 @@
 	<!-- Copies the sources to the deploy directory     					  -->
 	<!-- ==================================================================== -->
 	<target name="deploy" depends="copy" description="Copies the sources to the deploy directory.">
-		<echo message="Copy sources to ${instance.dir} ..." />
+		<echo message="Copy sources to ${deploy.dir} ..." />
 		<copy todir="${deploy.dir}" preservelastmodified="true" overwrite="true">
 			<fileset dir="${php-target.dir}">
 				<include name="**/*" />
@@ -60,60 +50,70 @@
 	</target>
 
     <!-- ==================================================================== -->
+    <!-- Check if TYPO3.Neos sources has been downloaded yet   		 	      -->
+    <!-- ==================================================================== -->
+    <target name="check-neos-src-present" description="Check if TYPO3.Neos sources has been downloaded yet.">
+        <available file="${lib.dir}/neos-sources-${neos.version}.tar.gz" property="neos-src.present"/>
+    </target>
+
+    <!-- ==================================================================== -->
+    <!-- Get TYPO3.Neos source package by given version number		          -->
+    <!-- ==================================================================== -->
+    <target name="get-neos-src" depends="check-neos-src-present" unless="${neos-src.present}" description="Get TYPO3.Neos source package by given version number.">
+        <get src="${neos.download.url}" dest="${lib.dir}/neos-sources-${neos.version}.tar.gz"/>
+    </target>
+
+    <!-- ==================================================================== -->
     <!-- Prepares the TYPO3.Neos installation                                 -->
     <!-- ==================================================================== -->
-	<target name="phar-prepare" depends="copy" description="Prepares the TYPO3.Neos installation.">
-		<composer command="create-project" composer="/usr/local/bin/composer.phar">
-			  <arg line="--dev --stability alpha typo3/neos-base-distribution ${php-target.dir}/${webapp.name}-build" />
-		</composer>
-	</target>
-
-    <!-- ==================================================================== -->
-    <!-- Creates a PHAR file with the TYPO3.Neos sources                      -->
-    <!-- ==================================================================== -->
-	<target name="phar-create" depends="phar-prepare" description="Creates a PHAR file with the TYPO3.Neos sources.">
-        <copy todir="${php-target.dir}/${webapp.name}-build" overwrite="true">
-            <fileset dir="${php-target.dir}/${webapp.name}">
-                <include name="**/**" />
-            </fileset>
-        </copy>
-        <pharpackage destfile="${php-target.dir}/${neos.version}.phar" basedir="${php-target.dir}/${webapp.name}-build">
-            <fileset dir="${php-target.dir}/${webapp.name}-build">
-                <include name="**/**" />
-            </fileset>
-            <metadata>
-                <element name="version" value="1.0" />
-                <element name="authors">
-                    <element name="Johann Zelger">
-                        <element name="e-mail" value="jz@appserver.io" />
-                    </element>
-                    <element name="Tim Wagner">
-                        <element name="e-mail" value="tw@appserver.io" />
-                    </element>
-                </element>
-            </metadata>
-        </pharpackage>
+	<target name="prepare-neos-src" depends="copy" description="Prepares the TYPO3.Neos installation.">
+		<untar src="${basedir}/lib/neos-sources-${neos.version}.tar.gz" dest="${php-target.dir}" compression="gzip" />
 	</target>
 
 	<!-- ==================================================================== -->
-	<!-- Deletes the magento instance for testing purpose   			 	  -->
+	<!-- Deletes the Neos instance for testing purpose   			 	      -->
 	<!-- ==================================================================== -->
-	<target name="delete-instance" description="Deletes the magento instance for testing purpose.">
+	<target name="delete-instance" description="Deletes the Neos instance for testing purposes.">
 		<echo message="Delete existing sources in ${instance.dir}..." />
 		<delete dir="${instance.dir}" includeemptydirs="true" quiet="false" verbose="false" failonerror="true" followsymlinks="false" />
 		<delete dir="${basedir}/instance-src" includeemptydirs="true" quiet="false" verbose="false" failonerror="true" />
 	</target>
 
 	<!-- ==================================================================== -->
-	<!-- Initializing a magento instance for testing purpose   			 	  -->
+	<!-- Initializing a Neos instance for testing purpose   			 	  -->
 	<!-- ==================================================================== -->
-	<target name="init-instance" description="Creats a magento instance for testing purpose">
+	<target name="init-instance" description="Initializing a Neos instance for testing purposes.">
+		<!-- delete the old instance directory -->
 		<antcall target="delete-instance" />
-		<exec executable="composer.phar" dir="${deploy.dir}">
-			<arg line="create-project --dev --stability alpha typo3/neos-base-distribution ${webapp.name}" />
-		</exec>
+		<!-- download the TYPO3.Neos sources if necessary -->
+		<antcall target="get-neos-src"/>
+		<!-- prepare the Neos sources to prepare the PHAR archive from -->
+		<antcall target="prepare-neos-src" />
+		<!-- copy the sources to the instance directory -->
+		<move todir="${instance.dir}" overwrite="false">
+			<fileset dir="${php-target.dir}/${webapp.name}-${neos.version}"/>
+	    </move>
+		<!-- create a symlink to the project folder -->
 		<exec dir="${basedir}" executable="/bin/ln">
 			<arg line="-s ${instance.dir} instance-src" />
+		</exec>
+	</target>
+
+    <!-- ==================================================================== -->
+    <!-- Creates a PHAR archive for deployment     					  		  -->
+    <!-- ==================================================================== -->
+	<target name="create-phar" description="Creates a PHAR archive for deployment.">
+		<!-- download the TYPO3.Neos sources if necessary -->
+		<antcall target="get-neos-src"/>
+		<!-- prepare the Neos sources to prepare the PHAR archive from -->
+		<antcall target="prepare-neos-src" />
+		<!-- install TechDivision_Phar package to create the PHAR archive -->
+		<exec dir="${php-target.dir}" executable="composer">
+			<arg line="require techdivision/phar dev-master" />
+		</exec>
+		<!-- create the PHAR archive itself from the backup sources -->
+		<exec dir="${php-target.dir}" executable="vendor/bin/phar">
+			<arg line="-c create -n ${php-target.dir}/${webapp.name}-${neos.version}.phar -d ${php-target.dir}/${webapp.name}-${neos.version}"/>
 		</exec>
 	</target>
 
