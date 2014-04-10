@@ -66,33 +66,8 @@
     <!-- ==================================================================== -->
     <!-- Prepares the TYPO3.Neos installation                                 -->
     <!-- ==================================================================== -->
-<<<<<<< HEAD
 	<target name="prepare-neos-src" depends="copy" description="Prepares the TYPO3.Neos installation.">
 		<untar src="${basedir}/lib/neos-sources-${neos.version}.tar.gz" dest="${php-target.dir}" compression="gzip" />
-=======
-	<target name="phar-create" depends="phar-prepare" description="Creates a PHAR file with the TYPO3.Neos sources.">
-        <copy todir="${php-target.dir}/${webapp.name}-build" overwrite="true">
-            <fileset dir="${php-target.dir}/${webapp.name}">
-                <include name="**/**" />
-            </fileset>
-        </copy>
-        <pharpackage destfile="${php-target.dir}/${neos.version}.phar" basedir="${php-target.dir}/${webapp.name}-build">
-            <fileset dir="${php-target.dir}/${webapp.name}-build">
-                <include name="**/**" />
-            </fileset>
-            <metadata>
-                <element name="version" value="1.0" />
-                <element name="authors">
-                    <element name="Johann Zelger">
-                        <element name="e-mail" value="jz@appserver.io" />
-                    </element>
-                    <element name="Tim Wagner">
-                        <element name="e-mail" value="tw@appserver.io" />
-                    </element>
-                </element>
-            </metadata>
-        </pharpackage>
->>>>>>> 5f531dcff3fae12eaad89a8a17690cc91c552b33
 	</target>
 
 	<!-- ==================================================================== -->
